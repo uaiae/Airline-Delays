@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+
+  <style>
+  
+  h2 {
+    text-align:center;
+    color: black;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  
+  .axis {
+    font-family: arial;
+    font-size: 0.6em;
+  }
+
+  .axis path,
+  .axis line  {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  circle {
+    opacity: 0.4;
+    fill: RoyalBlue;
+    stroke: none;
+  }
+
+  
+  </style>
+  
+  <script type="text/javascript">
+  function draw(date, data) {
+  "use strict"; // instructs browser to apply stric interpretation of Java Scrip rules.
+  
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Variables
+  var margin = 75,
+      width = 1000-margin,
+      height = 600-margin;
+  
+  var x_extent = d3.extent(data, function(d){
+    return d.date;
+  });
+  
+  var y_extent = d3.extent(data, function(d){
+    return d.arr_flights;
+  });
+  
+  var x_scale = d3.scale
+                  .linear()
+                  .range([margin, width])
+                  .domain(x_extent);
+                  
+  var y_scale = d3.scale
+                  .linear()
+                  .range([height, margin])
+                  .domain(y_extent);
+  
+  var x_axis = d3.svg.axis()
+                     .scale(x_scale)
+                     .orient("bottom");
+  
+  var y_axis = d3.svg.axis()
+                     .scale(y_scale)
+                     .orient("left");
+  
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Additional functions
+  
+  
+  //TBD
+  
+  
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Static Text Blocks
+  d3.select("body")
+    .append("h2")
+    .text("Airline On-Time Statistics 2003-2017")
+    
+  // Variable Text Blocks
+  
+  
+  //TBD
+  
+  
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Shaping the svg elements
+  // SVG is an XML based specification for drawing things.
+  // All SVG elements live inside an svg tag.
+   
+  var svg = d3.select("body")
+              .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+              .append("g")
+                .attr("class", "chart");
+  
+  d3.select("svg")
+    .selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle");
+  
+  d3.selectAll("circle")
+    .attr("cx", function(d) {return x_scale(d.date)})
+    .attr("cy", function(d) {return y_scale(d.arr_flights)})
+    .attr("r", 1);
+    
+  d3.select("svg")
+    .append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + (height+margin) + ")")
+    .call(x_axis);
+
+  d3.select("svg")
+    .append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + margin + ")")
+    .call(y_axis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 20)
+      .attr("x", -100)
+      .style("text-anchor", "end")
+      .text("Number of Flights");
+    
+            
+//  var svg = d3.select("body")
+//              .append("ul") // append unnumbered list
+//              .selectAll("li") // selecting all list elements on page knowing that there aren't any. = empty selection = array with now data. BUT now we can add data. 
+//              .data(data) // joining the empty selection with each data element on the data set
+//              .enter() // enter() selects only those elements that are going to enter the stage.
+//              .append("li")
+//              .text(function(d) {
+//                d.date = "1-" + d.month + "-" + d.year;
+//                d.date = format.parse(d.date);
+//                return "| " + d.date + " | " + d.arr_flights + " | " + d.arr_del15 + " |";
+//              });
+  
+  
+  // Main Visualization - Line Plot
+  
+  
+  
+  
+  }
+  </script>
+  
+</head>
+
+<body>
+  <script type="text/javascript">
+  
+  d3.csv("973767840_62017_2345_airline_delay_causes.csv", function(d){
+    d['year'] = +d['year'];
+    d['month'] = +d['month'];
+    d['date'] = d['year'] + d['month']/12;
+    d['arr_flights'] = +d['arr_flights'];
+    return d
+  }, draw)
+    
+  // Parameter Summary
+  //
+  // | Parameter Name       | Example Value                                   | Unit , Description                            |
+  // | year                 | 2017                                            | int year of observation                       |
+  // | month                | 6                                               | int month of oberservation                    |
+  // | carrier              | "WN"                                            | str  airline IATA code                        |
+  // | carrier_name         | "Southwest Airlines Co."                        | str  airline full name                        |
+  // | airport              | "MKE"                                           | str  airport IATA code                        |
+  // | airport_name         | "Milwaukee, WI: General Mitchell International" | str  full airport name                        |
+  // | arr_flights          | 1064.00                                         | total number of operations, of that airline in the given period |
+  // | arr_del15            | 268.00                                          | number of arrival delayed 15min               |
+  // | carrier_ct           | 85.33                                           | ct                                            |
+  // | weather_ct           | 6.52                                            | ct                                            |
+  // | nas_ct               | 28.96                                           | ct                                            |
+  // | security_ct          | 0.67                                            | ct                                            |
+  // | late_aircraft_ct     | 146.52                                          | ct                                            |
+  // | arr_cancelled        | 8.00 Arrival Canceled                           | number of cancelled arrivals                  |
+  // | arr_diverted         | 0.00 Diverted                                   | number of diverted arrivals                   |
+  // | arr_delay            | 17353.00                                        | float delayed minutes (sum of carrier, weather, nas, security, late_aircraft)|
+  // | carrier_delay        | 4711.00                                         | float delayed minutes                         |
+  // | weather_delay        | 1223.00                                         | float delayed minutes                         |
+  // | nas_delay            | 1196.00                                         | float delayed minutes                         |
+  // | security_delay       | 94.00                                           | float delayed minutes                         |
+  // | late_aircraft_delay  | 10129.00                                        | float delayed minutes                         |
+  </script>
+</body>
+</html>
