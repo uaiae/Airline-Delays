@@ -4,13 +4,13 @@
 <head>
 
   <title> Airline On-Time Statistics</title>
-  
+
   <meta charset="utf-8">
+  
   <meta name="author" content = "Michael Dugas">
     
   <style>
-  <!-- Kommentar im HTML-Quelltext -->
-  
+
   h1 {
     text-align: left;
     color: black;
@@ -22,7 +22,7 @@
     color: black;
     font: 14px sans-serif;
   }
-
+  
   p {
     text-align: left;
     color: grey;
@@ -31,7 +31,7 @@
   
   .axis {
     font-family: arial;
-    font-size: 0.6em;
+    font-size: 0.8em;
   }
 
   .axis path{
@@ -49,20 +49,27 @@
     font: 12px sans-serif;
   }
   
-  
+  text.airline_info {
+    font: 12px sans-serif;
+  }
+
   div.next_buttons {
         position: fixed;
         top: 180px;
         left: 30px;
         font: 14px sans-serif;
-      }
+        stroke: black;
+        stroke-width: 1.0;
+  }
 
   div.next_buttons div {
         background-color: "grey";
         padding: 3px;
         margin: 7px;
-      }
-  
+        stroke: "black";
+        stroke-width: 1.0;
+  }
+
   div.tooltip {
     position: absolute;
     text-align: left;
@@ -75,29 +82,28 @@
     border-radius: 2px;
     pointer-events: none;
   }
-  
+
   </style>
-  
+
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  
+
   <script type="text/javascript">
-  function draw(date, data) {
+  function draw(data) {
   "use strict"; // instructs browser to apply strict interpretation of Java Scrip rules.
-  
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 // Variables
   var margin = 125,
       width = 1400-margin,
       height = 600-margin;
-  
+
   var time_extent = d3.extent(data, function(d) {
               return d['date'];
   });
-  
+
   var y_extent = d3.extent(data, function(d){
-    return d['average_delay'];
+    return d['average_delay']/12;
   });
-                    
+
   var x_scale = d3.time.scale()
                   .domain(time_extent)
                   .range([margin,width]);
@@ -105,111 +111,47 @@
   var y_scale = d3.scale
                   .linear()
                   .range([height, margin])
-                  .domain(y_extent);
-                  
-  
+                  .domain(y_extent); 
+
   var x_axis = d3.svg.axis()
                      .scale(x_scale)
                      .ticks(14)
                      .orient("bottom");
-  
+
   var y_axis = d3.svg.axis()
                      .scale(y_scale)
                      .ticks(5)
                      .orient("left");
                      
   var formatTime = d3.time.format("%B %Y");
-  
-  // line generator
-  var line = d3.svg.line()
-               .x(function(d) { return x_scale(d.date); })
-               .y(function(d) { return y_scale(d.average_delay); });
-  
-  // Define the div for the tooltip
+
+// Define the div for the tooltip
   var div = d3.select("body")
               .append("div")
                 .attr("class", "tooltip")
                 .style("opacity", 0);
-  
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Additional functions
-  
-  
-  var major_airports = ["ATL", "BWI", "BOS", "CLT", "MDW", "ORD", "DAL", "DFW", "DEN", "DTW", "FLL", "IAH", "LAS", "LAX", "MIA", "MSP", "JFK", "LGA", "EWR", "MCO", "PHL", "PHX", "PDX", "SLC", "SAN", "SFO", "SEA", "TPA", "DCA", "IAD"]
-  
-  // 
-  
-  
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Static Text Blocks
+
+// Static Text Blocks
   d3.select("body")
     .append("h1")
     .text("Airline On-Time Statistics 2003-2017")
     .append("h2")
-    .text("Reference: Bureau of Transport Statistics")
-    .append("h6")
-    .text("Last Update: 2017-09-18 by M. Dugas")
+    .text("Based on the data compiled by the Bureau of Transport Statistics in the years 2003 to 2017 the average delay in minutes per flight has been derived.")
+    .append("h2")
+    .text("The complete data covers 365 reportable American airports and 12 reporting airlines.")
+    .append("h2")
+    .text("You can use the buttons on the left to explore the variation of the delay over time for different airlines at all American airports.")
 
-  // Variable Text Blocks
-  
-  d3.select("svg")
-    .append("button")
- 
-  //buttons
-  
-  
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Shaping the svg elements
-  // SVG is an XML based specification for drawing things.
-  // All SVG elements live inside an svg tag.
+// Shaping the svg elements
   var svg = d3.select("body")
               .append("svg")
                 .attr("width", width + margin)
                 .attr("height", height + margin)
               .append("g")
                 .attr("class", "chart");
-                
-  var airline = "UA"
-  
-//  d3.select("svg")
-   
-  svg.selectAll("circle")
-    .data(data)
-    .enter()
-    .append("circle")
-//    .filter(function(d) {return d.carrier == "AA"})
-      .style("fill", function(d) {
-        if (d.carrier == airline) {return "red"}
-        else {return "black"};
-      })
-    .style("opacity", function(d) {
-        if (d.carrier == airline) {return 0.8}
-        else {return 0.2};
-      })
-      .attr("r", function(d) {
-        if (d.carrier == airline) {return 2}
-        else {return 1};
-      })
-      .attr("cx", function(d) {return x_scale(d.date)})
-      .attr("cy", function(d) {return y_scale(d.average_delay)})
-      .on("mouseover", function(d){
-        d3.select(this).attr("r", 4).style("fill", "red");
-        div.transition()
-           .duration(200)
-           .style("opacity", .95)
-        div.html(d.carrier_name + "<br/>" + d.airport_name + "<br/>" + formatTime(d.date) + "<br/>" + "average delay [min/flight] " + d.average_delay_round + "<br/>" + "flights [-] " + d.arr_flights + "<br/>" + "delay [min] " + d.arr_delay)
-           .style("left", (d3.event.pageX+5) + "px")
-           .style("top", (d3.event.pageY-64) + "px");
-        })
-       .on("mouseout", function(d){
-         d3.select(this).attr("r", 2).style("fill", "grey");
-         div.transition()
-            .duration(500)
-            .style("opacity", 0);
-       });
-// Place and scale axes
 
-   d3.select("svg")
+// Place and scale axes
+  d3.select("svg")
     .append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
@@ -220,59 +162,93 @@
       .text("Year")
       .attr("x", width/2)
       .attr("y", margin/2);
- 
+
   d3.select("svg")
     .append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + margin + ", 0)")
     .call(y_axis)
-    
+
   d3.select(".y.axis")    
     .append("text")
       .text("Average delay per flight measured in minutes")
       .attr("x", 10)
       .attr("y", margin);
 
-// Explanatory Text
- 
-   var explanations = ["Based on the data compiled by the Bureau of Transport Statistics in the years 2003 to 2017 the average delay in minutes per flight has been derived." ,
-                       "The data covers 365 reportable American airports and 12 reporting airlines."]
+// Start with the selection of the Alaska Airline Data
+  update("AS");
    
-   d3.select("svg")
-     .append("text")
-       .text("Selected airline : " + airline)
-       .attr("x", 1000)
-       .attr("y", 150)
-       
-   d3.select("svg")
-     .append("text")
-       .text(explanations[0])
-       .attr("x", margin)
-       .attr("y", margin/2)
-
-   d3.select("svg")
-     .append("text")
-       .text(explanations[1])
-       .attr("x", margin)
-       .attr("y", margin/2 + 16)   
-    
   function update(steps) {
-   svg.selectAll("circle")
-      .data(data)
-      .enter()
-      .append("circle")
-      .attr("fill", "blue")
-      }
-//      .attr("fill", function(d) {
-//        if (steps == "Step 2") {return "blue";}
-//        else {return "black";};
-//      }
-  
+    var airline = "";
+    var airline_full = "";
     
-// Buttons
-   
-   var steps = ["Step 1", "Step 2", "Step 3"];
-   
+    if (steps == "AS") {airline = "AS" , airline_full = "Alaska Airlines"} 
+    else if (steps == "AA") {airline = "AA" , airline_full = "American Airlines"} 
+    else if (steps == "WN") {airline = "WN" , airline_full = "Southwest Airlines Co."} 
+    else if (steps == "B6") {airline = "B6" , airline_full = "Jetblue Airways Corperation"};
+
+// show airline IATA Code
+  var airline_info = svg.selectAll("text")
+       .data(airline)
+       .text("Selected airline : " + airline_full)
+       .attr("class", "airline_info")
+       .style("fill", "red")
+       .attr("x", 1000)
+       .attr("y", 150);
+
+  airline_info.enter()
+              .append("text")
+              .text("Selected airline : " + airline_full)
+              .attr("class", "airline_info")
+              .style("fill", "red")
+              .attr("x", 1000)
+              .attr("y", 150);
+
+  airline_info.exit()
+              .remove();
+
+// plot selected airline and allow to see details on mouseover - highlight circle on mouseover 
+  var circles = svg.selectAll("circle")
+                   .data(data.filter(function(d) {return d.carrier == airline}))
+                   .attr("cx", function(d) {return x_scale(d.date)})
+                   .attr("cy", function(d) {return y_scale(d.average_delay)})
+                   .attr("r", 1)
+                   .style("fill", "grey")
+
+  circles.enter()
+         .append("circle")
+         .attr("cx", function(d) {return x_scale(d.date)})
+         .attr("cy", function(d) {return y_scale(d.average_delay)})
+         .attr("r", 1)
+         .style("fill", "grey")
+         .on("mouseover", function(d){
+           d3.select(this).attr("r", 5).style("fill", "red");
+           div.transition()
+              .duration(200)
+              .style("opacity", .95)
+           div.html(d.carrier_name + "<br/>" + 
+                    d.airport_name + "<br/>" + 
+                    formatTime(d.date) + "<br/>" +
+                    "average delay [min/flight] " + d.average_delay_round + "<br/>" + 
+                    "flights [-] " + d.arr_flights + "<br/>" + 
+                    "delay [min] " + d.arr_delay)
+              .style("left", (d3.event.pageX+5) + "px")
+              .style("top", (d3.event.pageY-64) + "px");
+         })
+        .on("mouseout", function(d){
+           d3.select(this).attr("r", 1).style("fill", "grey");
+           div.transition()
+              .duration(500)
+              .style("opacity", 0);
+         });
+
+  circles.exit()
+         .remove();
+  }
+
+// Create buttons to step by step explore data
+   var steps = ["AS", "AA", "WN", "B6"];
+
    var buttons = d3.select("body")
                    .append("div")
                    .attr("class", "next_buttons")
@@ -281,36 +257,33 @@
                    .enter()
                    .append("div")
                    .attr("width", 100)
+                   .style("color", "black")
+                   .style("background", "grey")
                    .text(function(d) {
                           return d;
                     });
 
-   
+// Listen to clicks and feed update function with button value. 
+// Change button color when clicked on.
    buttons.on("click", function(d) {
               d3.select(".next_buttons")
                       .selectAll("div")
                       .transition()
-                      .duration(100)
+                      .duration(1500)
                       .style("color", "black")
                       .style("background", "grey");
-
-                    d3.select(this)
+                          
+             d3.select(this)
                       .transition()
-                      .duration(100)
-                      .style("background", "lightBlue")
+                      .duration(500)
+                      .style("background", "red")
                       .style("color", "white");
                     update(d);                     
                 });
-
-  
   }
 
-
-
-
-  
   </script>
-  
+
 </head>
 
 <body>
@@ -322,41 +295,41 @@
   formatround = d3.format(".1f");
   
   d3.csv("973767840_62017_2345_airline_delay_causes.csv", function(d){
-    d['date'] = formattime.parse(d['year'] + "-" + d['month']);
+    d['date'] = formattime.parse(d['year'] + "-" + d['month']); // build date parameter
     d['arr_flights'] = +d['arr_flights'];
     d['arr_delay'] = +d['arr_delay'];
     d['average_delay'] = d['arr_delay'] / d['arr_flights'];
-    d['average_delay_round'] = formatround(+d['average_delay'] || 0);// convert NaNs into zeros and round to one digit
+    d['average_delay_round'] = formatround(+d['average_delay'] || 0);// convert NaNs into zeros and round to one digit for display in tooltip
     d['average_delay'] = +d['average_delay'] || 0;// convert NaNs into zeros and round to one digit
     return d
   }, draw)
-    
-  // Parameter Summary
-  // ---------------------------------------------------------------------------------------------------------------------------------------------------------
-  // | Parameter Name       | Example Value                                   | Description                                                                  |
-  // | year                 | 2017                                            | year of observation                                                          |
-  // | month                | 6                                               | month of oberservation                                                       |
-  // | carrier              | WN                                              | airline IATA code                                                            |
-  // | carrier_name         | Southwest Airlines Co."                         | airline full name                                                            |
-  // | airport              | MKE"                                            | airport IATA code                                                            |
-  // | airport_name         | Milwaukee, WI: General Mitchell International   | full airport name                                                            |
-  // | arr_flights          | 1064.00                                         | total number of operations, of that airline in the given period              |
-  // | arr_del15            | 268.00                                          | number of arrival delayed 15min                                              |
-  // | carrier_ct           | 85.33                                           | number of arrivals delayed due to carrier                                    |
-  // | weather_ct           | 6.52                                            | number of arrivals delayed due to weather                                    |
-  // | nas_ct               | 28.96                                           | number of arrivals delayed to due national aviatoin system                   |
-  // | security_ct          | 0.67                                            | number of arrivals delayed due to security reasons                           |
-  // | late_aircraft_ct     | 146.52                                          | number of aircraft arriving late                                             |
-  // | arr_cancelled        | 8.00                                            | number of cancelled arrivals                                                 |
-  // | arr_diverted         | 0.00                                            | number of diverted arrivals                                                  |
-  // | arr_delay            | 17353.00                                        | Total delayed minutes (sum of carrier, weather, nas, security, late_aircraft)|
-  // | carrier_delay        | 4711.00                                         | delayed minutes due to carrier                                               |
-  // | weather_delay        | 1223.00                                         | delayed minutes due to weather                                               |
-  // | nas_delay            | 1196.00                                         | delayed minutes due to national aviation system                              |
-  // | security_delay       | 94.00                                           | delayed minutes due to security                                              |
-  // | late_aircraft_delay  | 10129.00                                        | delayed minutes due to aircraft arriving late                                |
-  
+
+// Parameter Summary
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------
+// | Parameter Name       | Example Value                                   | Description                                                                  |
+// | year                 | 2017                                            | year of observation                                                          |
+// | month                | 6                                               | month of oberservation                                                       |
+// | carrier              | WN                                              | airline IATA code                                                            |
+// | carrier_name         | Southwest Airlines Co."                         | airline full name                                                            |
+// | airport              | MKE"                                            | airport IATA code                                                            |
+// | airport_name         | Milwaukee, WI: General Mitchell International   | full airport name                                                            |
+// | arr_flights          | 1064.00                                         | total number of operations, of that airline in the given period              |
+// | arr_del15            | 268.00                                          | number of arrival delayed 15min                                              |
+// | carrier_ct           | 85.33                                           | number of arrivals delayed due to carrier                                    |
+// | weather_ct           | 6.52                                            | number of arrivals delayed due to weather                                    |
+// | nas_ct               | 28.96                                           | number of arrivals delayed to due national aviatoin system                   |
+// | security_ct          | 0.67                                            | number of arrivals delayed due to security reasons                           |
+// | late_aircraft_ct     | 146.52                                          | number of aircraft arriving late                                             |
+// | arr_cancelled        | 8.00                                            | number of cancelled arrivals                                                 |
+// | arr_diverted         | 0.00                                            | number of diverted arrivals                                                  |
+// | arr_delay            | 17353.00                                        | Total delayed minutes (sum of carrier, weather, nas, security, late_aircraft)|
+// | carrier_delay        | 4711.00                                         | delayed minutes due to carrier                                               |
+// | weather_delay        | 1223.00                                         | delayed minutes due to weather                                               |
+// | nas_delay            | 1196.00                                         | delayed minutes due to national aviation system                              |
+// | security_delay       | 94.00                                           | delayed minutes due to security                                              |
+// | late_aircraft_delay  | 10129.00                                        | delayed minutes due to aircraft arriving late                                |
+
   </script>
-  
+
 </body>
 </html>
