@@ -10,24 +10,6 @@
   <meta name="author" content = "Michael Dugas">
     
   <style>
-
-  h1 {
-    text-align: left;
-    color: black;
-    font: 16px sans-serif;
-  }
-
-  h2 {
-    text-align: left;
-    color: black;
-    font: 14px sans-serif;
-  }
-  
-  p {
-    text-align: left;
-    color: grey;
-    font: 12px sans-serif;
-  }
   
   .axis {
     font-family: arial;
@@ -45,11 +27,11 @@
     shape-rendering: crispEdges;
   }
 
-  text.explanations {
+  .explanations {
     font: 12px sans-serif;
   }
   
-  text.airline_info {
+  .legend {
     font: 12px sans-serif;
   }
 
@@ -83,16 +65,30 @@
     pointer-events: none;
   }
 
+  path { 
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  
+  .legend rect {
+    fill:white;
+    stroke:black;
+    opacity:0.8;
+  }
+  
   </style>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
 
   <script type="text/javascript">
-  function draw(data) {
   "use strict"; // instructs browser to apply strict interpretation of Java Scrip rules.
 
+  function draw(data) {
+
 // Variables
-  var margin = 125,
+  var margin = 150,
       width = 1400-margin,
       height = 600-margin;
 
@@ -101,7 +97,7 @@
   });
 
   var y_extent = d3.extent(data, function(d){
-    return d['average_delay']/12;
+    return d['average_delay']/15;
   });
 
   var x_scale = d3.time.scale()
@@ -113,6 +109,11 @@
                   .range([height, margin])
                   .domain(y_extent); 
 
+  var r_scale = d3.scale
+                  .sqrt()
+                  .range([0.1,10])
+                  .domain([1,10000])
+                  
   var x_axis = d3.svg.axis()
                      .scale(x_scale)
                      .ticks(14)
@@ -125,23 +126,14 @@
                      
   var formatTime = d3.time.format("%B %Y");
 
+  var steps = ["B6", "AS", "off"];
+  
 // Define the div for the tooltip
   var div = d3.select("body")
               .append("div")
                 .attr("class", "tooltip")
                 .style("opacity", 0);
-
-// Static Text Blocks
-  d3.select("body")
-    .append("h1")
-    .text("Airline On-Time Statistics 2003-2017")
-    .append("h2")
-    .text("Based on the data compiled by the Bureau of Transport Statistics in the years 2003 to 2017 the average delay in minutes per flight has been derived.")
-    .append("h2")
-    .text("The complete data covers 365 reportable American airports and 12 reporting airlines.")
-    .append("h2")
-    .text("You can use the buttons on the left to explore the variation of the delay over time for different airlines at all American airports.")
-
+    
 // Shaping the svg elements
   var svg = d3.select("body")
               .append("svg")
@@ -175,54 +167,208 @@
       .attr("x", 10)
       .attr("y", margin);
 
-// Start with the selection of the Alaska Airline Data
-  update("AS");
-   
-  function update(steps) {
-    var airline = "";
-    var airline_full = "";
+// Static Text Blocks
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "18px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 15)
+    .text("Airline On-Time Statistics: Comparison of Alaska Airlines with JetBlue Airways");
+  
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 40)
+    .text("Based on the data compiled by the Bureau of Transport Statistics in the years 2003 to 2017 the average delay in minutes per flight for each airline and airport has been derived.");
+  
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 58)
+    .text("Alaska Airlines and JetBlue Airways have been picked as they represent the best and worst American Airlines in terms of on-time performance (Status 2016).");
+
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 76)
+    .text("To follow the evolution of the performance of the two airlines the median of the average delay is plotted versus time.");
     
-    if (steps == "AS") {airline = "AS" , airline_full = "Alaska Airlines"} 
-    else if (steps == "AA") {airline = "AA" , airline_full = "American Airlines"} 
-    else if (steps == "WN") {airline = "WN" , airline_full = "Southwest Airlines Co."} 
-    else if (steps == "B6") {airline = "B6" , airline_full = "Jetblue Airways Corperation"};
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 94)
+    .text("While performing similarly until 2010, Alaska Airlines managed to improve the performance significantly versus JetBlue. Alaska Airlines is also less sensitive to yearly osscillation (e.g. due to weather).");
 
-// show airline IATA Code
-  var airline_info = svg.selectAll("text")
-       .data(airline)
-       .text("Selected airline : " + airline_full)
-       .attr("class", "airline_info")
-       .style("fill", "red")
-       .attr("x", 1000)
-       .attr("y", 150);
+  d3.select("svg")
+    .append("text")
+    .attr("class", "explanations")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'black') 
+    .attr("x", 10)
+    .attr("y", 112)
+    .text("To display the detailed data (average delay for each airport, number of arrivals at each airport) used to derive the median line, please use the buttons on the left side. Use mouse to explore further details.");
+    
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "16px") 
+    .style("fill", 'red') 
+    .attr("x", 600)
+    .attr("y", 160)
+    .text("JetBlue Airways (B6)");
+     
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "16px") 
+    .style("fill", 'green')
+    .attr("x", 600)
+    .attr("y", 180)
+    .text("Alaska Airlines Inc. (AS)");
 
-  airline_info.enter()
-              .append("text")
-              .text("Selected airline : " + airline_full)
-              .attr("class", "airline_info")
-              .style("fill", "red")
-              .attr("x", 1000)
-              .attr("y", 150);
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'grey')
+    .attr("x", 10)
+    .attr("y", 160)
+    .text("Show details");
+    
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "12px") 
+    .style("fill", 'grey')
+    .attr("x", 10)
+    .attr("y", 300)
+    .text("Circle Size = Flights");
 
-  airline_info.exit()
-              .remove();
+  d3.select("svg")
+    .append("circle")
+    .attr("class", "legend")
+    .attr("cx", 30)
+    .attr("cy",  320)
+    .attr("r",  3.2)
+    .style("fill", 'grey')
+    .style("opacity", 0.4)
 
-// plot selected airline and allow to see details on mouseover - highlight circle on mouseover 
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "10px") 
+    .style("fill", 'grey')
+    .attr("x", 38)
+    .attr("y", 325)
+    .text("1000 flights");
+      
+  d3.select("svg")
+    .append("circle")
+    .attr("class", "legend")
+    .attr("cx", 30)
+    .attr("cy",  340)
+    .attr("r",  10)
+    .style("fill", 'grey')
+    .style("opacity", 0.4)
+
+  d3.select("svg")
+    .append("text")
+    .attr("class", "legend")
+    .attr("text-anchor", "left")  
+    .style("font-size", "10px") 
+    .style("fill", 'grey')
+    .attr("x", 40)
+    .attr("y", 350)
+    .text("10000 flights");
+
+// median values for line plot
+  function airline_line(steps) {
+         var data_red = data.filter(function(d) {return d.carrier == steps});
+         
+         return d3.nest()
+           .key(function(d) {return d.date;})
+           .rollup(function(d) {return d3.median(d, function(g){ return g.average_delay});})
+           .entries(data_red);
+    };
+
+// Filter for specific airline
+    function airline_circle(steps) {
+      return data.filter(function(d) {return d.carrier == steps})
+    };
+
+// Filter for color and opacity
+    function line_color(steps) {
+                if (steps == "AS") {return 'green'} 
+           else if (steps == "B6") {return 'red'}
+           else if (steps == "off") {return };
+    };
+    
+    function opacity(steps) {
+                if (steps == "AS") {return 0.4} 
+           else if (steps == "B6") {return 0.4}
+           else if (steps == "off") {return 0.0};
+    };
+    
+// Create median lines
+    var line = d3.svg.line()
+                     .x(function(d) { return x_scale(new Date(d.key)); })
+                     .y(function(d) { return y_scale(d.values); });
+    
+    svg.append("path")
+      .datum(airline_line("AS"))
+      .attr("stroke", line_color("AS") )
+      .attr("d", line)
+
+    svg.append("path")
+      .datum(airline_line("B6"))
+      .attr("stroke", line_color("B6") )
+      .attr("d", line) 
+
+// update function to display detailed airline data when buttons are clicked on
+   function update(steps) {
+
+// plot average delays for each airport of selected airline and allow to see details on mouseover
   var circles = svg.selectAll("circle")
-                   .data(data.filter(function(d) {return d.carrier == airline}))
-                   .attr("cx", function(d) {return x_scale(d.date)})
-                   .attr("cy", function(d) {return y_scale(d.average_delay)})
-                   .attr("r", 1)
-                   .style("fill", "grey")
+                   .data(airline_circle(steps))
+                     .attr("cx", function(d) {return x_scale(d.date)})
+                     .attr("cy", function(d) {return y_scale(d.average_delay)})
+                     .attr("r", function(d) {return r_scale(d.arr_flights)} )
+                     .style("fill", line_color(steps))
 
   circles.enter()
          .append("circle")
-         .attr("cx", function(d) {return x_scale(d.date)})
-         .attr("cy", function(d) {return y_scale(d.average_delay)})
-         .attr("r", 1)
-         .style("fill", "grey")
+           .attr("cx", function(d) {return x_scale(d.date)})
+           .attr("cy", function(d) {return y_scale(d.average_delay)})
+           .attr("r", function(d) {return r_scale(d.arr_flights)} )
+           .style("fill", line_color(steps))
+           .style("opacity", opacity(steps))
          .on("mouseover", function(d){
-           d3.select(this).attr("r", 5).style("fill", "red");
+           d3.select(this);
            div.transition()
               .duration(200)
               .style("opacity", .95)
@@ -236,7 +382,7 @@
               .style("top", (d3.event.pageY-64) + "px");
          })
         .on("mouseout", function(d){
-           d3.select(this).attr("r", 1).style("fill", "grey");
+           d3.select(this);
            div.transition()
               .duration(500)
               .style("opacity", 0);
@@ -246,19 +392,17 @@
          .remove();
   }
 
-// Create buttons to step by step explore data
-   var steps = ["AS", "AA", "WN", "B6"];
-
+// Create buttons based on text in list steps
    var buttons = d3.select("body")
                    .append("div")
-                   .attr("class", "next_buttons")
+                     .attr("class", "next_buttons")
                    .selectAll("div")
                    .data(steps)
                    .enter()
                    .append("div")
-                   .attr("width", 100)
-                   .style("color", "black")
-                   .style("background", "grey")
+                     .attr("width", 100)
+                     .style("color", 'black')
+                     .style("background", "grey")
                    .text(function(d) {
                           return d;
                     });
@@ -269,16 +413,16 @@
               d3.select(".next_buttons")
                       .selectAll("div")
                       .transition()
-                      .duration(1500)
-                      .style("color", "black")
-                      .style("background", "grey");
-                          
+                      .duration(500)
+                        .style("color", 'black')
+                        .style("background", "grey");
+
              d3.select(this)
                       .transition()
                       .duration(500)
-                      .style("background", "red")
-                      .style("color", "white");
-                    update(d);                     
+                        .style("background", line_color(d))
+                        .style("color", "white");
+                      update(d);                     
                 });
   }
 
@@ -311,7 +455,7 @@
 // | month                | 6                                               | month of oberservation                                                       |
 // | carrier              | WN                                              | airline IATA code                                                            |
 // | carrier_name         | Southwest Airlines Co."                         | airline full name                                                            |
-// | airport              | MKE"                                            | airport IATA code                                                            |
+// | airport              | MKE                                             | airport IATA code                                                            |
 // | airport_name         | Milwaukee, WI: General Mitchell International   | full airport name                                                            |
 // | arr_flights          | 1064.00                                         | total number of operations, of that airline in the given period              |
 // | arr_del15            | 268.00                                          | number of arrival delayed 15min                                              |
@@ -328,6 +472,7 @@
 // | nas_delay            | 1196.00                                         | delayed minutes due to national aviation system                              |
 // | security_delay       | 94.00                                           | delayed minutes due to security                                              |
 // | late_aircraft_delay  | 10129.00                                        | delayed minutes due to aircraft arriving late                                |
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
   </script>
 
