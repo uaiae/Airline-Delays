@@ -3,35 +3,37 @@ Summary
 Based on data published by the Bureau of Transport Statistics I want to share 
 the average delay (measured in minutes per flight) of arriving aircraft in the US.
 
-The visualization shows for a chosen airline the average delay for all airports 
-the airline flies to in a period from June 2003 to June 2017.
+The visualization shows for two chosen airlines the median of the average delay 
+for all airports the airline flies to in a period from June 2003 to June 2017.
 
-The viewer can chose to display 4 different airlines (AS, AA, WN, B6) to explore
-the differences.
+Alaska Airlines and JetBlue Airways have been picked on purpose as they represent 
+the best and worst American Airlines in terms of on-time performance (Status 2016).
 
-I want to enable the viewer to see the periodicity in the data (which is not linked
-to summer vs. winter) and to see that AS (Alaska Airlines) performs better than 
-B6 (JetBlue).
-
+I want to enable the viewer to follow the evolution of the performance of the 
+two airlines and to understand that Alaska Airlines improved its performance over time.
 
 
 Design
 
-As I want to present the "on-time performance" of airlines over time and allow the
-viewer to develop a direct understanding of how the data is distributed/spread out 
-I have chosen to a scatter plot.
+To allow the viewer to directly see and compare the performance of the two airlines
+over time I am showing a lineplot with the median values (for all airports) 
+for each airline over time. The average delay is encoded as y and time as x coordinate.
 
-I encoded date and average delay via the x-y coordinates. To show the differences
-in number of flights for each dot I encoded this value as circle diameter
-(as sqrt of number flights and with a small bubble size range only). 
-Thus I can visualize a "big" airline with a lot of flights to their hubs 
-e.g. American Airline in comparison to a smaller airline (Alaska Airlines).
+In addition I also wanted to allow the viewer to develop a better understanding 
+of how the data is distributed/spread out. To do so I have chosen to a scatter plot. 
+This scatterplot will be only shown when the viewer clicks on the details buttons.
+I encoded date and average delay via the x-y coordinates as before, but this time 
+for every single airport. To show the differences in number of flights for 
+each dot I encoded this value as circle diameter (as sqrt of number flights 
+and with a small bubble size range only). 
+Thus I can visualize a "big" hub with a lot of flights in comparison to a small
+less frequented airport.
 
-Find below all feedback I received from the first version (v01) to the final 
-visualization (v02).
+
+Find below all feedback I received from the first version (index1.html) to the final 
+visualization (index.html).
 I included the description of the changes that I managed to implement 
 (as I am still far away from being a d3 wizard :-)).
-
 
 
 Feedback
@@ -57,11 +59,14 @@ Thomas
  Maybe show median of all airlines&airports 
 
 
-
 Changes implemented
 
-Version 01 started with showing all data (all airlines and all airports). During
-the discussions with Johnny, Christian and Thomas I learned that wanted to see 
+NOTE: index1.html takes long to load - please  check the screenshot index1.png instead.
+
+Index1: started with showing all data (all airlines and all airports). 
+
+Index2:
+During the discussions with Johnny, Christian and Thomas I learned that wanted to see 
 patterns in the data. Thus I reduced the amount of data shown simulatneously by
 addition of buttons which allow to filter for preset airlines.
 I chose these airlines based on an article I found on:
@@ -82,6 +87,13 @@ In addition to just show the number of flights in the infobox I encoded sqrt val
 as circle radius in order to better pronounce the patterns in the data and clearer
 distinguish the "size" of an airline.
 
+Index:
+I now implemented direct the comparison of the airlines. For this last version 
+I just picked two airlines in the end to better compare their performance evolution.
+I switched to a line plot of the medians to compare the two airlines directly.
+The line plot is now used as starting point or core visualization.
+In addition the viewer can still display all the details (as before on index2) 
+when clicking on the airline buttons.
 
 Resources
 list of sources I consulted to create my visualization
@@ -91,7 +103,7 @@ Data Source
   I downloaded the following file: 973767840_62017_2345_airline_delay_causes.csv
   The header of this file contains the parameter names. Some of the parameter names contained a leading blank, which I deleted in the csv file directly.
 - mega region clusters https://en.wikipedia.org/wiki/Megaregions_of_the_United_States
-- From first to worst airlines https://www.fool.com/investing/2017/03/23/from-first-to-worst-ranking-the-10-major-airlines.aspx- 
+- From first to worst airlines https://www.fool.com/investing/2017/03/23/from-first-to-worst-ranking-the-10-major-airlines.aspx
   
 D3 (Find below sources which help me to in my struggle to get familiar with D3 ... and its still a long way to go)
 - Convert Nan into 0: https://stackoverflow.com/questions/7540397/convert-nan-to-0-in-javascript
@@ -99,3 +111,4 @@ D3 (Find below sources which help me to in my struggle to get familiar with D3 .
 - d3.format https://github.com/d3/d3-format/blob/master/README.md#format
 - Color circles on mouseover https://stackoverflow.com/questions/23703089/d3-js-change-color-and-size-on-line-graph-dot-on-mouseover
 - And of course 23_globe_fixing_buttons.html as given in the Udacity course.
+- multi line graph example http://www.d3noob.org/2014/07/d3js-multi-line-graph-with-automatic.html
